@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Tech Job Market Visualizer 2025</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.8) 100%);
+            border-bottom: 1px solid rgba(148,163,184,0.2);
+            padding: 3rem 2rem;
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(249,115,22,0.08), transparent 50%), 
+                        radial-gradient(circle at 70% 50%, rgba(34,197,94,0.08), transparent 50%);
+            pointer-events: none;
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background: linear-gradient(to right, rgba(249,115,22,0.2), rgba(34,197,94,0.2));
+            border: 1px solid rgba(249,115,22,0.3);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #fed7aa;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ffffff, #cbd5e1, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            max-width: 48rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(34, 211, 238, 0.08));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.08));
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .stat-card.orange {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(239, 68, 68, 0.08));
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.08));
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-sub {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0 2rem;
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid #334155;
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            border-bottom-color: #f97316;
+            color: #ffffff;
+        }
+
+        .tab:hover {
+            color: #cbd5e1;
+        }
+
+        main {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .controls {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            background: rgba(51, 65, 85, 0.6);
+            border: 1px solid #475569;
+            border-radius: 0.5rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #475569;
+            color: #ffffff;
+        }
+
+        .btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            border-color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 20rem;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background: rgba(51, 65, 85, 0.6);
+            border: 1px solid #475569;
+            border-radius: 0.5rem;
+            color: #ffffff;
+            font-size: 0.875rem;
+            position: relative;
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        input.search-box {
+            padding-left: 2.5rem;
+        }
+
+        input.search-box::placeholder {
+            color: #64748b;
+        }
+
+        .treemap-container {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            min-height: 600px;
+        }
+
+        .chart-container {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            min-height: 400px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+
+        .legend-color {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #475569;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+        }
+
+        .row-label {
+            color: #64748b;
+        }
+
+        .row-value {
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-size: 0.875rem;
+            pointer-events: none;
+            max-width: 320px;
+            z-index: 1000;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        .tooltip.active {
+            display: block;
+        }
+
+        footer {
+            border-top: 1px solid #334155;
+            padding: 2rem;
+            background: rgba(15, 23, 42, 0.5);
+            color: #64748b;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tabs {
+                padding: 0 1rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <span class="badge">🇮🇳 India Tech Workforce 2025</span>
+            <h1>India Tech Job Market Visualizer</h1>
+            <p class="subtitle">
+                AI exposure, salaries, and hiring trends across 49+ tech roles in India's $282.6B IT industry.
+                Box size = workforce headcount. Color = selected metric.
+            </p>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Tech Workforce</div>
+                    <div class="stat-value">5.8M</div>
+                    <div class="stat-sub">FY25 (NASSCOM)</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">Active GCCs</div>
+                    <div class="stat-value">1,700+</div>
+                    <div class="stat-sub">2.4M employed</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">Avg AI Exposure</div>
+                    <div class="stat-value">5.8/10</div>
+                    <div class="stat-sub">High-risk roles: 3.2M</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Booming Roles</div>
+                    <div class="stat-value">1.2M+</div>
+                    <div class="stat-sub">20%+ YoY growth</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('overview')">📊 Overview</button>
+        <button class="tab" onclick="switchTab('jobs')">💼 Jobs By Role</button>
+        <button class="tab" onclick="switchTab('cities')">📍 Cities</button>
+        <button class="tab" onclick="switchTab('skills')">⚡ Skills & Trends</button>
+        <button class="tab" onclick="switchTab('companies')">🏢 Top Hirers</button>
+        <button class="tab" onclick="switchTab('data')">📋 Data Export</button>
+    </div>
+
+    <main>
+        <!-- OVERVIEW TAB -->
+        <div id="overview" class="tab-content active">
+            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label">Color By</label>
+                    <div class="button-group">
+                        <button class="btn active" onclick="setColorMode('exposure')">🟢 AI Exposure</button>
+                        <button class="btn" onclick="setColorMode('salary')">💰 Salary</button>
+                        <button class="btn" onclick="setColorMode('growth')">📈 Growth</button>
+                        <button class="btn" onclick="setColorMode('category')">🏷️ Category</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Search Role</label>
+                    <input type="text" class="search-box" id="searchInput" placeholder="e.g. AI Engineer, Data Scientist..." onkeyup="updateTreemap()">
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Filter by Category</label>
+                    <div class="button-group" id="categoryButtons"></div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Legend</label>
+                    <div class="legend" id="colorLegend"></div>
+                </div>
+            </div>
+
+            <div class="treemap-container">
+                <svg id="treemapSvg" width="100%" height="600"></svg>
+            </div>
+        </div>
+
+        <!-- JOBS TAB -->
+        <div id="jobs" class="tab-content">
+            <div class="chart-container">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: #ffffff;">Job Market by Category</h2>
+                <canvas id="jobsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- CITIES TAB -->
+        <div id="cities" class="tab-content">
+            <div class="chart-container">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: #ffffff;">Tech Jobs Distribution by City</h2>
+                <canvas id="citiesChart"></canvas>
+            </div>
+            <div class="grid-2" id="citiesCards"></div>
+        </div>
+
+        <!-- SKILLS TAB -->
+        <div id="skills" class="tab-content">
+            <div class="chart-container">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: #ffffff;">AI/ML Hiring Boom (Naukri JobSpeak 2025)</h2>
+                <canvas id="aimlChart"></canvas>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">🚀 Booming Roles (20%+ growth)</div>
+                    <div id="boomingRoles"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">⚠️ Declining Roles (AI Pressure)</div>
+                    <div id="decliningRoles"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPANIES TAB -->
+        <div id="companies" class="tab-content">
+            <div class="chart-container">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: #ffffff;">Top Hiring Companies (2025)</h2>
+                <canvas id="companiesChart"></canvas>
+            </div>
+            <div class="grid-2" id="companiesCards"></div>
+        </div>
+
+        <!-- DATA EXPORT TAB -->
+        <div id="data" class="tab-content">
+            <div class="card">
+                <div class="card-title">📥 Export Job Market Data</div>
+                <div class="card-subtitle">Download complete dataset for analysis</div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
+                    <button class="btn" style="background: #3b82f6; border-color: #3b82f6; color: #ffffff; cursor: pointer;" onclick="downloadCSV()">📊 Download as CSV</button>
+                    <button class="btn" style="background: #8b5cf6; border-color: #8b5cf6; color: #ffffff; cursor: pointer;" onclick="downloadJSON()">📋 Download as JSON</button>
+                    <button class="btn" style="background: #06b6d4; border-color: #06b6d4; color: #ffffff; cursor: pointer;" onclick="copyToClipboard()">📋 Copy JSON to Clipboard</button>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-title">📊 Data Summary Statistics</div>
+                <div id="dataStats"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p><strong>Data Sources:</strong> NASSCOM Strategic Review 2025 · Naukri JobSpeak (Jan–Dec 2025) · Zinnov GCC Reports · NITI Aayog · Deloitte AI Talent Forecast · AmbitionBox · Levels.fyi</p>
+        <p style="margin-top: 1rem; font-size: 0.75rem;">⚠️ Workforce numbers are estimates synthesized from public reports. AI exposure scores follow Karpathy's 0–10 rubric: digital-native + remote-doable work scores higher.</p>
+        <p style="margin-top: 1rem;"><a href="https://github.com/karpathy/jobs" target="_blank" style="color: #f97316; text-decoration: none;">📌 Methodology inspired by karpathy/jobs</a></p>
+    </footer>
+
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+        // ==================== DATA ====================
+        const JOB_DATA = [
+            { role: "Java Developer", category: "Software Engineering", jobs: 450000, salary: 12, salaryRange: "6-25", exposure: 7.5, growth: -2, city: "Bengaluru" },
+            { role: "Frontend Developer (React/Angular)", category: "Software Engineering", jobs: 320000, salary: 14, salaryRange: "7-28", exposure: 8.0, growth: 5, city: "Bengaluru" },
+            { role: "Backend Developer (Node/Python)", category: "Software Engineering", jobs: 280000, salary: 16, salaryRange: "8-32", exposure: 7.5, growth: 8, city: "Bengaluru" },
+            { role: "Full-Stack Developer", category: "Software Engineering", jobs: 380000, salary: 18, salaryRange: "8-35", exposure: 7.5, growth: 18, city: "Bengaluru" },
+            { role: "Mobile Developer (Android)", category: "Software Engineering", jobs: 180000, salary: 14, salaryRange: "7-26", exposure: 7.0, growth: 3, city: "Hyderabad" },
+            { role: "iOS Developer", category: "Software Engineering", jobs: 90000, salary: 18, salaryRange: "9-32", exposure: 7.0, growth: 5, city: "Bengaluru" },
+            { role: ".NET Developer", category: "Software Engineering", jobs: 220000, salary: 11, salaryRange: "5-22", exposure: 8.0, growth: -8, city: "Hyderabad" },
+            { role: "PHP Developer", category: "Software Engineering", jobs: 150000, salary: 7, salaryRange: "3-15", exposure: 8.5, growth: -15, city: "Pune" },
+            { role: "Embedded Software Engineer", category: "Software Engineering", jobs: 95000, salary: 14, salaryRange: "7-28", exposure: 4.0, growth: 12, city: "Bengaluru" },
+            { role: "Game Developer", category: "Software Engineering", jobs: 35000, salary: 12, salaryRange: "5-25", exposure: 7.0, growth: 15, city: "Bengaluru" },
+            { role: "Data Analyst", category: "Data & AI/ML", jobs: 220000, salary: 8, salaryRange: "4-18", exposure: 8.5, growth: -5, city: "Bengaluru" },
+            { role: "Data Engineer", category: "Data & AI/ML", jobs: 130000, salary: 18, salaryRange: "9-35", exposure: 6.0, growth: 25, city: "Hyderabad" },
+            { role: "Data Scientist", category: "Data & AI/ML", jobs: 90000, salary: 15, salaryRange: "8-50", exposure: 5.5, growth: 22, city: "Bengaluru" },
+            { role: "Machine Learning Engineer", category: "Data & AI/ML", jobs: 60000, salary: 22, salaryRange: "12-60", exposure: 4.5, growth: 35, city: "Bengaluru" },
+            { role: "AI / Generative AI Engineer", category: "Data & AI/ML", jobs: 35000, salary: 28, salaryRange: "15-90", exposure: 3.0, growth: 60, city: "Bengaluru" },
+            { role: "BI Developer (Tableau/PowerBI)", category: "Data & AI/ML", jobs: 65000, salary: 9, salaryRange: "5-18", exposure: 8.5, growth: -10, city: "Pune" },
+            { role: "DevOps Engineer", category: "Cloud & DevOps", jobs: 180000, salary: 17, salaryRange: "9-30", exposure: 6.0, growth: 20, city: "Bengaluru" },
+            { role: "Cloud Engineer (AWS/Azure/GCP)", category: "Cloud & DevOps", jobs: 160000, salary: 19, salaryRange: "10-38", exposure: 6.0, growth: 28, city: "Hyderabad" },
+            { role: "Site Reliability Engineer", category: "Cloud & DevOps", jobs: 45000, salary: 24, salaryRange: "14-50", exposure: 5.5, growth: 22, city: "Bengaluru" },
+            { role: "Network Engineer", category: "Cloud & DevOps", jobs: 130000, salary: 9, salaryRange: "4-20", exposure: 6.0, growth: -3, city: "Mumbai" },
+            { role: "System Administrator", category: "Cloud & DevOps", jobs: 110000, salary: 7, salaryRange: "3-15", exposure: 7.0, growth: -12, city: "Pune" },
+            { role: "Database Administrator", category: "Cloud & DevOps", jobs: 75000, salary: 12, salaryRange: "6-22", exposure: 7.0, growth: -5, city: "Hyderabad" },
+            { role: "Cybersecurity Analyst", category: "Cybersecurity", jobs: 110000, salary: 12, salaryRange: "5-25", exposure: 5.0, growth: 30, city: "Bengaluru" },
+            { role: "Security Engineer", category: "Cybersecurity", jobs: 70000, salary: 18, salaryRange: "9-40", exposure: 5.0, growth: 32, city: "Bengaluru" },
+            { role: "Penetration Tester", category: "Cybersecurity", jobs: 25000, salary: 16, salaryRange: "8-35", exposure: 4.0, growth: 25, city: "Bengaluru" },
+            { role: "SOC Analyst (L1/L2)", category: "Cybersecurity", jobs: 60000, salary: 7, salaryRange: "3-14", exposure: 6.5, growth: 8, city: "Hyderabad" },
+            { role: "Identity & Access Management", category: "Cybersecurity", jobs: 35000, salary: 14, salaryRange: "7-26", exposure: 6.0, growth: 18, city: "Pune" },
+            { role: "Product Manager", category: "Product & Design", jobs: 80000, salary: 32, salaryRange: "15-80", exposure: 5.5, growth: 18, city: "Bengaluru" },
+            { role: "UI/UX Designer", category: "Product & Design", jobs: 95000, salary: 11, salaryRange: "5-25", exposure: 6.0, growth: 5, city: "Bengaluru" },
+            { role: "Product Designer", category: "Product & Design", jobs: 35000, salary: 18, salaryRange: "8-40", exposure: 5.5, growth: 12, city: "Bengaluru" },
+            { role: "Engineering Manager", category: "Product & Design", jobs: 65000, salary: 38, salaryRange: "20-90", exposure: 5.0, growth: 12, city: "Bengaluru" },
+            { role: "Tech Lead / Staff Engineer", category: "Product & Design", jobs: 130000, salary: 32, salaryRange: "16-75", exposure: 5.5, growth: 15, city: "Bengaluru" },
+            { role: "Manual QA Engineer", category: "QA & Testing", jobs: 200000, salary: 5, salaryRange: "2-10", exposure: 9.0, growth: -25, city: "Pune" },
+            { role: "Automation Test Engineer", category: "QA & Testing", jobs: 180000, salary: 9, salaryRange: "4-18", exposure: 7.0, growth: 5, city: "Bengaluru" },
+            { role: "SDET", category: "QA & Testing", jobs: 80000, salary: 16, salaryRange: "8-32", exposure: 6.5, growth: 10, city: "Bengaluru" },
+            { role: "Performance Test Engineer", category: "QA & Testing", jobs: 40000, salary: 12, salaryRange: "6-22", exposure: 6.5, growth: 3, city: "Hyderabad" },
+            { role: "IT Support / Helpdesk", category: "IT Services", jobs: 280000, salary: 4, salaryRange: "2-8", exposure: 8.0, growth: -18, city: "Pune" },
+            { role: "Technical Writer", category: "IT Services", jobs: 35000, salary: 8, salaryRange: "4-18", exposure: 9.5, growth: -20, city: "Bengaluru" },
+            { role: "Salesforce Developer", category: "IT Services", jobs: 85000, salary: 14, salaryRange: "7-28", exposure: 7.0, growth: 8, city: "Hyderabad" },
+            { role: "SAP Consultant", category: "IT Services", jobs: 110000, salary: 16, salaryRange: "8-35", exposure: 6.5, growth: 5, city: "Mumbai" },
+            { role: "ServiceNow Developer", category: "IT Services", jobs: 45000, salary: 15, salaryRange: "7-30", exposure: 7.0, growth: 12, city: "Hyderabad" },
+            { role: "Oracle Developer", category: "IT Services", jobs: 70000, salary: 11, salaryRange: "5-22", exposure: 7.5, growth: -8, city: "Bengaluru" },
+            { role: "Mainframe Developer (COBOL)", category: "IT Services", jobs: 75000, salary: 13, salaryRange: "6-25", exposure: 8.0, growth: -12, city: "Chennai" },
+            { role: "Blockchain Developer", category: "Emerging Tech", jobs: 25000, salary: 18, salaryRange: "8-45", exposure: 5.0, growth: 15, city: "Bengaluru" },
+            { role: "AR/VR Developer", category: "Emerging Tech", jobs: 15000, salary: 14, salaryRange: "6-30", exposure: 4.5, growth: 20, city: "Bengaluru" },
+            { role: "IoT Engineer", category: "Emerging Tech", jobs: 40000, salary: 12, salaryRange: "6-24", exposure: 4.0, growth: 18, city: "Bengaluru" },
+            { role: "Robotics Engineer", category: "Emerging Tech", jobs: 20000, salary: 16, salaryRange: "8-35", exposure: 3.0, growth: 25, city: "Bengaluru" },
+            { role: "Quantum Computing Engineer", category: "Emerging Tech", jobs: 5000, salary: 25, salaryRange: "12-60", exposure: 2.0, growth: 40, city: "Bengaluru" },
+            { role: "Hardware Engineer (VLSI/Chip)", category: "Emerging Tech", jobs: 45000, salary: 15, salaryRange: "7-35", exposure: 3.5, growth: 22, city: "Bengaluru" }
+        ];
+
+        const CITY_DATA = [
+            { city: "Bengaluru", jobs: 1700000, gccs: 880, share: 24, avgSal: 18, growth: 12 },
+            { city: "Hyderabad", jobs: 950000, gccs: 355, share: 14, avgSal: 16, growth: 22 },
+            { city: "Pune", jobs: 720000, gccs: 360, share: 12, avgSal: 14, growth: 10 },
+            { city: "Chennai", jobs: 680000, gccs: 300, share: 11, avgSal: 12, growth: 18 },
+            { city: "Delhi NCR", jobs: 850000, gccs: 465, share: 13, avgSal: 17, growth: 15 },
+            { city: "Mumbai", jobs: 580000, gccs: 220, share: 9, avgSal: 17, growth: 8 },
+            { city: "Kolkata", jobs: 180000, gccs: 45, share: 3, avgSal: 10, growth: 14 },
+            { city: "Tier-2 Cities", jobs: 240000, gccs: 220, share: 4, avgSal: 9, growth: 28 }
+        ];
+
+        const COMPANIES = [
+            { name: "TCS", type: "IT Services", hires: 40000 },
+            { name: "Accenture", type: "Consulting", hires: 25000 },
+            { name: "Capgemini", type: "Consulting", hires: 20000 },
+            { name: "Infosys", type: "IT Services", hires: 20000 },
+            { name: "Cognizant", type: "IT Services", hires: 18000 },
+            { name: "Wipro", type: "IT Services", hires: 15000 },
+            { name: "HCLTech", type: "IT Services", hires: 12000 },
+            { name: "Amazon India", type: "Product/GCC", hires: 8000 },
+            { name: "Google India", type: "Product/GCC", hires: 6000 },
+            { name: "Microsoft India", type: "Product/GCC", hires: 5500 },
+            { name: "Flipkart", type: "Unicorn", hires: 5000 },
+            { name: "Walmart Global Tech", type: "GCC", hires: 4500 },
+            { name: "JPMorgan Chase", type: "GCC", hires: 4000 },
+            { name: "Goldman Sachs", type: "GCC", hires: 3500 },
+            { name: "Swiggy", type: "Unicorn", hires: 2500 },
+            { name: "Zomato", type: "Unicorn", hires: 2000 }
+        ];
+
+        const AIML_TREND = [
+            { month: "Jan", value: 18 }, { month: "Feb", value: 21 }, { month: "Mar", value: 25 },
+            { month: "Apr", value: 28 }, { month: "May", value: 25 }, { month: "Jun", value: 32 },
+            { month: "Jul", value: 41 }, { month: "Aug", value: 54 }, { month: "Sep", value: 48 },
+            { month: "Oct", value: 45 }, { month: "Nov", value: 50 }, { month: "Dec", value: 52 }
+        ];
+
+        // ==================== STATE ====================
+        let colorMode = 'exposure';
+        let searchTerm = '';
+        let selectedCategory = 'All';
+        let charts = {};
+
+        // ==================== FUNCTIONS ====================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'jobs' && !charts.jobs) createJobsChart();
+            if (tabName === 'cities' && !charts.cities) createCitiesChart();
+            if (tabName === 'skills' && !charts.aiml) createAIMLChart();
+            if (tabName === 'companies' && !charts.companies) createCompaniesChart();
+            if (tabName === 'data') populateDataTab();
+        }
+
+        function setColorMode(mode) {
+            colorMode = mode;
+            document.querySelectorAll('.controls .btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === ['exposure', 'salary', 'growth', 'category'].indexOf(mode));
+            });
+            updateTreemap();
+            updateLegend();
+        }
+
+        function updateTreemap() {
+            searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = JOB_DATA.filter(j => {
+                const matchesSearch = !searchTerm || j.role.toLowerCase().includes(searchTerm) || j.category.toLowerCase().includes(searchTerm);
+                const matchesCategory = selectedCategory === 'All' || j.category === selectedCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            drawTreemap(filtered);
+        }
+
+        function drawTreemap(data) {
+            const categories = {};
+            data.forEach(j => {
+                if (!categories[j.category]) categories[j.category] = [];
+                categories[j.category].push(j);
+            });
+
+            const root = {
+                name: "root",
+                children: Object.entries(categories).map(([cat, jobs]) => ({
+                    name: cat,
+                    children: jobs.map(j => ({ ...j, value: j.jobs }))
+                }))
+            };
+
+            const width = document.getElementById('treemapSvg').clientWidth || 1200;
+            const height = 600;
+
+            const hierarchy_data = d3.hierarchy(root)
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+
+            d3.treemap()
+                .tile(d3.treemapSquarify)
+                .size([width, height])
+                .paddingTop(22)
+                .paddingRight(2)
+                .paddingBottom(2)
+                .paddingLeft(2)(hierarchy_data);
+
+            const color = d => {
+                if (colorMode === 'exposure') return exposureColor(d.data.exposure);
+                if (colorMode === 'salary') return salaryColor(d.data.salary);
+                if (colorMode === 'growth') return growthColor(d.data.growth);
+                return categoryColor(d.data.category);
+            };
+
+            const svg = d3.select('#treemapSvg')
+                .attr('width', width)
+                .attr('height', height);
+
+            svg.selectAll('*').remove();
+
+            // Category labels
+            svg.selectAll('.category')
+                .data(hierarchy_data.children || [])
+                .join('g')
+                .attr('class', 'category')
+                .append('rect')
+                .attr('x', d => d.x0)
+                .attr('y', d => d.y0)
+                .attr('width', d => d.x1 - d.x0)
+                .attr('height', 20)
+                .attr('fill', 'rgba(15, 23, 42, 0.95)')
+                .attr('stroke', 'rgba(148,163,184,0.2)');
+
+            svg.selectAll('.category')
+                .append('text')
+                .attr('x', d => d.x0 + 8)
+                .attr('y', d => d.y0 + 14)
+                .attr('fill', '#e2e8f0')
+                .attr('font-size', 11)
+                .attr('font-weight', 600)
+                .text(d => d.data.name.toUpperCase());
+
+            // Leaf nodes
+            const leaves = hierarchy_data.leaves();
+            svg.selectAll('.leaf')
+                .data(leaves)
+                .join('g')
+                .attr('class', 'leaf')
+                .append('rect')
+                .attr('x', d => d.x0)
+                .attr('y', d => d.y0)
+                .attr('width', d => d.x1 - d.x0)
+                .attr('height', d => d.y1 - d.y0)
+                .attr('fill', color)
+                .attr('stroke', 'rgba(15, 23, 42, 0.6)')
+                .attr('stroke-width', 1)
+                .style('cursor', 'pointer')
+                .on('mouseenter', (e, d) => showTooltip(d.data, e))
+                .on('mousemove', (e, d) => moveTooltip(e))
+                .on('mouseleave', hideTooltip);
+
+            svg.selectAll('.leaf')
+                .append('text')
+                .attr('x', d => d.x0 + 4)
+                .attr('y', d => d.y0 + 14)
+                .attr('fill', '#0f172a')
+                .attr('font-size', d => {
+                    const w = d.x1 - d.x0;
+                    const h = d.y1 - d.y0;
+                    if (w < 60 || h < 28) return 0;
+                    return Math.min(13, Math.max(9, w / 15));
+                })
+                .attr('font-weight', 700)
+                .attr('text-anchor', 'start')
+                .text(d => {
+                    const w = d.x1 - d.x0;
+                    if (w < 60) return '';
+                    return d.data.role.substring(0, Math.floor(w / 8));
+                })
+                .style('pointer-events', 'none');
+        }
+
+        function exposureColor(score) {
+            const t = Math.max(0, Math.min(1, score / 10));
+            if (t < 0.5) {
+                const r = Math.round(16 + (234 - 16) * t * 2);
+                const g = Math.round(185 + (179 - 185) * t * 2);
+                const b = Math.round(129 + (8 - 129) * t * 2);
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+            const r = Math.round(234 + (239 - 234) * (t - 0.5) * 2);
+            const g = Math.round(179 + (68 - 179) * (t - 0.5) * 2);
+            const b = Math.round(8 + (68 - 8) * (t - 0.5) * 2);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function salaryColor(sal) {
+            const t = Math.max(0, Math.min(1, sal / 35));
+            const r = Math.round(30 + (34 - 30) * t);
+            const g = Math.round(58 + (211 - 58) * t);
+            const b = Math.round(138 + (238 - 138) * t);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function growthColor(g) {
+            if (g < 0) {
+                const t = Math.max(0, (g + 25) / 25);
+                const r = Math.round(239 * (1 - t) + 100 * t);
+                const gr = Math.round(68 * (1 - t) + 116 * t);
+                const b = Math.round(68 * (1 - t) + 139 * t);
+                return `rgb(${r}, ${gr}, ${b})`;
+            }
+            const t = Math.min(1, g / 30);
+            const r = Math.round(100 * (1 - t) + 34 * t);
+            const gr = Math.round(116 * (1 - t) + 197 * t);
+            const b = Math.round(139 * (1 - t) + 94 * t);
+            return `rgb(${r}, ${gr}, ${b})`;
+        }
+
+        function categoryColor(cat) {
+            const colors = {
+                "Software Engineering": "#3b82f6",
+                "Data & AI/ML": "#a855f7",
+                "Cloud & DevOps": "#06b6d4",
+                "Cybersecurity": "#f59e0b",
+                "Product & Design": "#ec4899",
+                "QA & Testing": "#84cc16",
+                "IT Services": "#64748b",
+                "Emerging Tech": "#10b981"
+            };
+            return colors[cat] || "#64748b";
+        }
+
+        function updateLegend() {
+            const legend = document.getElementById('colorLegend');
+            legend.innerHTML = '';
+
+            if (colorMode === 'category') {
+                const categories = [...new Set(JOB_DATA.map(j => j.category))];
+                categories.forEach(cat => {
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    item.innerHTML = `<div class="legend-color" style="background: ${categoryColor(cat)}"></div><span>${cat}</span>`;
+                    legend.appendChild(item);
+                });
+            } else {
+                const gradients = {
+                    exposure: ['green (Safe)', 'yellow', 'red (Exposed)'],
+                    salary: ['blue (Low)', 'cyan (High)'],
+                    growth: ['red (Declining)', 'gray (Flat)', 'green (Booming)']
+                };
+                const colors = {
+                    exposure: ['rgb(16,185,129)', 'rgb(234,179,8)', 'rgb(239,68,68)'],
+                    salary: ['rgb(30,58,138)', 'rgb(34,211,238)'],
+                    growth: ['rgb(239,68,68)', 'rgb(100,116,139)', 'rgb(34,197,94)']
+                };
+
+                const items = gradients[colorMode];
+                items.forEach((item, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'legend-item';
+                    div.innerHTML = `<div class="legend-color" style="background: ${colors[colorMode][i]}"></div><span>${item}</span>`;
+                    legend.appendChild(div);
+                });
+            }
+        }
+
+        function showTooltip(job, event) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.innerHTML = `
+                <div style="margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid #334155;">
+                    <div style="font-weight: 700; color: #ffffff; font-size: 0.875rem;">${job.role}</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8;">${job.category}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.75rem;">
+                    <div style="background: rgba(51, 65, 85, 0.6); padding: 0.5rem; border-radius: 0.375rem;">
+                        <div style="color: #64748b; text-transform: uppercase; font-size: 0.625rem;">Workforce</div>
+                        <div style="color: #ffffff; font-weight: 600; font-size: 0.875rem;">${(job.jobs/1000).toFixed(0)}K</div>
+                    </div>
+                    <div style="background: rgba(51, 65, 85, 0.6); padding: 0.5rem; border-radius: 0.375rem;">
+                        <div style="color: #64748b; text-transform: uppercase; font-size: 0.625rem;">Salary</div>
+                        <div style="color: #ffffff; font-weight: 600; font-size: 0.875rem;">₹${job.salary}L</div>
+                    </div>
+                    <div style="background: rgba(51, 65, 85, 0.6); padding: 0.5rem; border-radius: 0.375rem;">
+                        <div style="color: #64748b; text-transform: uppercase; font-size: 0.625rem;">AI Exposure</div>
+                        <div style="color: #ffffff; font-weight: 600; font-size: 0.875rem;">${job.exposure}/10</div>
+                    </div>
+                    <div style="background: rgba(51, 65, 85, 0.6); padding: 0.5rem; border-radius: 0.375rem;">
+                        <div style="color: #64748b; text-transform: uppercase; font-size: 0.625rem;">Growth</div>
+                        <div style="color: ${job.growth >= 0 ? '#10b981' : '#ef4444'}; font-weight: 600; font-size: 0.875rem;">${job.growth > 0 ? '+' : ''}${job.growth}%</div>
+                    </div>
+                </div>
+                <div style="font-size: 0.75rem; color: #cbd5e1; line-height: 1.4;">
+                    <strong>📍 Top City:</strong> ${job.city}<br>
+                    <strong>💰 Range:</strong> ₹${job.salaryRange} LPA
+                </div>
+            `;
+            tooltip.classList.add('active');
+            moveTooltip(event);
+        }
+
+        function moveTooltip(event) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.left = (Math.min(event.clientX + 15, window.innerWidth - 340)) + 'px';
+            tooltip.style.top = (Math.min(event.clientY + 15, window.innerHeight - 380)) + 'px';
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('active');
+        }
+
+        function initializeCategories() {
+            const categories = ['All', ...new Set(JOB_DATA.map(j => j.category))];
+            const container = document.getElementById('categoryButtons');
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'btn' + (cat === 'All' ? ' active' : '');
+                btn.textContent = cat;
+                btn.onclick = () => {
+                    selectedCategory = cat;
+                    document.querySelectorAll('#categoryButtons .btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateTreemap();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function createJobsChart() {
+            const categoryData = {};
+            JOB_DATA.forEach(j => {
+                categoryData[j.category] = (categoryData[j.category] || 0) + j.jobs;
+            });
+
+            const ctx = document.getElementById('jobsChart').getContext('2d');
+            charts.jobs = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        label: 'Total Workforce',
+                        data: Object.values(categoryData).map(v => v / 1000),
+                        backgroundColor: [
+                            '#3b82f6', '#a855f7', '#06b6d4', '#f59e0b',
+                            '#ec4899', '#84cc16', '#64748b', '#10b981'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createCitiesChart() {
+            const ctx = document.getElementById('citiesChart').getContext('2d');
+            charts.cities = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: CITY_DATA.map(c => c.city),
+                    datasets: [{
+                        label: 'Tech Workforce',
+                        data: CITY_DATA.map(c => c.jobs / 1000),
+                        backgroundColor: CITY_DATA.map((_, i) => `hsl(${20 + i * 35}, 70%, 55%)`)
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1' } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+
+            const citiesCards = document.getElementById('citiesCards');
+            citiesCards.innerHTML = CITY_DATA.map(c => `
+                <div class="card">
+                    <div style="font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">📍 ${c.city}</div>
+                    <div class="row"><span class="row-label">Workforce</span><span class="row-value">${(c.jobs/1000).toFixed(0)}K</span></div>
+                    <div class="row"><span class="row-label">GCCs</span><span class="row-value">${c.gccs}</span></div>
+                    <div class="row"><span class="row-label">Avg Salary</span><span class="row-value">₹${c.avgSal}L</span></div>
+                    <div class="row"><span class="row-label">Market Share</span><span class="row-value">${c.share}%</span></div>
+                    <div class="row"><span class="row-label">YoY Growth</span><span class="row-value" style="color: ${c.growth >= 15 ? '#10b981' : '#3b82f6'};">+${c.growth}%</span></div>
+                </div>
+            `).join('');
+        }
+
+        function createAIMLChart() {
+            const ctx = document.getElementById('aimlChart').getContext('2d');
+            charts.aiml = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: AIML_TREND.map(d => d.month),
+                    datasets: [{
+                        label: 'YoY Growth (%)',
+                        data: AIML_TREND.map(d => d.value),
+                        backgroundColor: AIML_TREND.map(d => `rgb(${Math.min(255, 100 + d.value * 3)}, ${Math.max(50, 200 - d.value * 2)}, 50)`)
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1' } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+
+            const booming = JOB_DATA.filter(j => j.growth >= 20).sort((a, b) => b.growth - a.growth).slice(0, 6);
+            const declining = JOB_DATA.filter(j => j.growth < 0).sort((a, b) => a.growth - b.growth).slice(0, 6);
+
+            document.getElementById('boomingRoles').innerHTML = booming.map(j => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #334155; font-size: 0.875rem;">
+                    <span style="color: #cbd5e1;">${j.role}</span>
+                    <span style="color: #10b981; font-weight: 600;">+${j.growth}%</span>
+                </div>
+            `).join('');
+
+            document.getElementById('decliningRoles').innerHTML = declining.map(j => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #334155; font-size: 0.875rem;">
+                    <span style="color: #cbd5e1;">${j.role}</span>
+                    <span style="color: #ef4444; font-weight: 600;">${j.growth}%</span>
+                </div>
+            `).join('');
+        }
+
+        function createCompaniesChart() {
+            const sorted = [...COMPANIES].sort((a, b) => b.hires - a.hires);
+            const ctx = document.getElementById('companiesChart').getContext('2d');
+            charts.companies = new Chart(ctx, {
+                type: 'barH',
+                data: {
+                    labels: sorted.map(c => c.name),
+                    datasets: [{
+                        label: 'Annual Hires',
+                        data: sorted.map(c => c.hires),
+                        backgroundColor: ['#0070C0', '#A100FF', '#0070AD', '#007CC3', '#1A4F8E', '#341551', '#0075C9', '#FF9900', '#4285F4', '#00A4EF', '#2874F0', '#0071CE', '#0066B2', '#7399C6', '#FC8019', '#E23744']
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1' } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+
+            const grouped = {};
+            COMPANIES.forEach(c => {
+                if (!grouped[c.type]) grouped[c.type] = [];
+                grouped[c.type].push(c);
+            });
+
+            const companiesCards = document.getElementById('companiesCards');
+            companiesCards.innerHTML = Object.entries(grouped).map(([type, comps]) => `
+                <div class="card">
+                    <div style="text-transform: uppercase; font-size: 0.75rem; color: #64748b; font-weight: 600; margin-bottom: 1rem;">${type}</div>
+                    ${comps.map(c => `
+                        <div style="margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 4px; height: 2rem; background: #f97316; border-radius: 0.25rem;"></div>
+                            <div style="flex: 1;">
+                                <div style="color: #ffffff; font-weight: 600; font-size: 0.875rem;">${c.name}</div>
+                                <div style="font-size: 0.75rem; color: #64748b;">${(c.hires/1000).toFixed(0)}K hires/yr</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function populateDataTab() {
+            const total = JOB_DATA.reduce((s, j) => s + j.jobs, 0);
+            const avgSal = JOB_DATA.reduce((s, j) => s + j.salary * j.jobs, 0) / total;
+            const avgExp = JOB_DATA.reduce((s, j) => s + j.exposure * j.jobs, 0) / total;
+            const highRisk = JOB_DATA.filter(j => j.exposure >= 7).reduce((s, j) => s + j.jobs, 0);
+            const booming = JOB_DATA.filter(j => j.growth >= 20).reduce((s, j) => s + j.jobs, 0);
+
+            document.getElementById('dataStats').innerHTML = `
+                <div class="row"><span class="row-label">Total Workforce</span><span class="row-value">${(total/1000000).toFixed(1)}M</span></div>
+                <div class="row"><span class="row-label">Average Salary</span><span class="row-value">₹${avgSal.toFixed(1)}L</span></div>
+                <div class="row"><span class="row-label">Average AI Exposure</span><span class="row-value">${avgExp.toFixed(1)}/10</span></div>
+                <div class="row"><span class="row-label">High-Risk Roles (7+)</span><span class="row-value">${(highRisk/1000000).toFixed(1)}M</span></div>
+                <div class="row"><span class="row-label">Booming Roles (20%+ growth)</span><span class="row-value">${(booming/1000000).toFixed(1)}M</span></div>
+                <div class="row"><span class="row-label">Job Categories</span><span class="row-value">${new Set(JOB_DATA.map(j => j.category)).size}</span></div>
+                <div class="row"><span class="row-label">Top Cities</span><span class="row-value">${CITY_DATA.length}</span></div>
+                <div class="row"><span class="row-label">Top Hiring Companies</span><span class="row-value">${COMPANIES.length}</span></div>
+            `;
+        }
+
+        function downloadCSV() {
+            let csv = 'Role,Category,Workforce,Salary (LPA),Salary Range,AI Exposure,YoY Growth (%),Top City\n';
+            JOB_DATA.forEach(j => {
+                csv += `"${j.role}","${j.category}",${j.jobs},${j.salary},"${j.salaryRange}",${j.exposure},${j.growth},"${j.city}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'india_jobs_market_2025.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function downloadJSON() {
+            const data = {
+                metadata: {
+                    title: "India Tech Job Market Visualizer 2025",
+                    sources: ["NASSCOM Strategic Review 2025", "Naukri JobSpeak", "Zinnov GCC Reports", "NITI Aayog"],
+                    exported: new Date().toISOString()
+                },
+                jobs: JOB_DATA,
+                cities: CITY_DATA,
+                companies: COMPANIES,
+                aiml_trend: AIML_TREND
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'india_jobs_market_2025.json';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function copyToClipboard() {
+            const data = {
+                metadata: {
+                    title: "India Tech Job Market Visualizer 2025",
+                    sources: ["NASSCOM Strategic Review 2025", "Naukri JobSpeak", "Zinnov GCC Reports"],
+                    exported: new Date().toISOString()
+                },
+                jobs: JOB_DATA,
+                cities: CITY_DATA,
+                companies: COMPANIES
+            };
+            navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => {
+                alert('✅ JSON copied to clipboard!');
+            });
+        }
+
+        // ==================== INITIALIZATION ====================
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeCategories();
+            updateLegend();
+            updateTreemap();
+        });
+    </script>
+</body>
+</html>
